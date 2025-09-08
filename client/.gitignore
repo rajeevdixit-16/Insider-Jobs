@@ -21,5 +21,8 @@ dist-ssr
 *.ntvs*
 *.njsproj
 *.sln
-*.env
 *.sw?
+
+# Ignore environment variables
+
+.env
