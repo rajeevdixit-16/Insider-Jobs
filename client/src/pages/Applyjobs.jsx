@@ -7,6 +7,7 @@ import Navbar from '../components/Navbar'
 import { assets } from '../assets/assets'
 import kconvert from 'k-convert'
 import moment from 'moment'
+import JobCard from '../components/JobCard'
 
 const Applyjobs = () => {
 
@@ -75,6 +76,12 @@ const Applyjobs = () => {
               <div className='rich-text' dangerouslySetInnerHTML={{__html: JobData.description}}>
               </div>
               <button className='bg-blue-600 p-2.5 px-10 text-white rounded mt-10'>Apply Now</button>
+            </div>
+    
+            <div>
+              <h2>More jobs from {JobData.companyId.name}</h2>
+              {jobs.filter(job=>job._id!==JobData._id && job.companyId._id === JobData.companyId._id)
+              .filter(job=>true).slice(0,4).map((job,index)=> <JobCard key={index} job={job} />)}
             </div>
           </div>
         </div>
