@@ -14,14 +14,20 @@ await connectDB()
 
 // Middleware
 app.use(cors())
-app.use(express.json())
+app.use((req, res, next) => {
+  if (req.originalUrl === '/webhooks') {
+    express.raw({ type: 'application/json' })(req, res, next);
+  } else {
+    express.json()(req, res, next);
+  }
+});
 
 // Routes
 app.get('/',(req,res)=> res.send("Api Working"))
 app.get("/debug-sentry", function mainHandler(req, res) {
   throw new Error("My first Sentry error!");
 });
-app.post('/webhooks',express.raw({ type: 'application/json' }),clerkWebhooks)
+app.post('/webhooks',clerkWebhooks)
 
 // Port
 const PORT = process.env.PORT || 5000
