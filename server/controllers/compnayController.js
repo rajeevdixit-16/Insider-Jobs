@@ -3,6 +3,7 @@ import bcrypt, { hash } from 'bcrypt'
 import {v2 as cloudinary} from 'cloudinary'
 import generateToken from "../utils/generateToken.js";
 import Job from "../models/Job.js";
+import JobApplication from "../models/JobApplication.js"
 
 // Register a new Company
 
@@ -56,7 +57,7 @@ export const loginCompany = async(req,res) => {
     const {email,password} = req.body
     try {
         const company = await Company.findOne({email})
-        if (bcrypt.compare(password,company.password)) {
+        if (await bcrypt.compare(password,company.password)) {
             res.json({
                 success: true,
                 company:{
@@ -132,9 +133,13 @@ export const getCompanyPostedJobs = async(req,res) =>{
 
         const jobs = await Job.find({companyId})
 
-// Todo adding no. of applicatns info in daata
+        // Adding no. of applicants
+        const jobsData = await Promise.all(jobs.map(async (job) => {
+            const applicants = await JobApplication.find({jobId: job._id})
+            return {...job.toObject(),applicants:applicants.length}
+        }))
 
-        res.json({success:true,jobsData:jobs})
+        res.json({success:true,jobsData})
 
     } catch (error) {
         res.json({success:false,message:error.message})
@@ -153,7 +158,7 @@ export const changeVisibility = async(req,res) => {
 
     try {
         const {id} = req.body
-        const companyId = req.comapny._id
+        const companyId = req.company._id
         const job = await Job.findById(id)
 
         if (companyId.toString() === job.companyId.toString()) {
@@ -162,7 +167,7 @@ export const changeVisibility = async(req,res) => {
 
         await job.save()
 
-        res.josn({success:true,job})
+        res.json({success:true,job})
     } catch (error) {
         res.json({success:false,message:error.message})
     }
